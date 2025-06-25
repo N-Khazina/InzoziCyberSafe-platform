@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// Craft rules based on data in your Firestore database
+// allow write: if firestore.get(
+//    /databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read access to all files (for development)
+    // This allows images and videos to be displayed without authentication
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // More specific rules for course content
+    match /courses/{courseId}/{allPaths=**} {
+      allow read: if true; // Public read access for course content
+      allow write: if request.auth != null; // Only authenticated users can upload
+    }
+    
+    // Course thumbnails
+    match /course-thumbnails/{allPaths=**} {
+      allow read: if true; // Public read access for thumbnails
+      allow write: if request.auth != null; // Only authenticated users can upload
+    }
+  }
+}
